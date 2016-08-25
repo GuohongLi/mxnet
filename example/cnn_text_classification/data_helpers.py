@@ -31,9 +31,9 @@ def load_data_and_labels():
     Returns split sentences and labels.
     """
     # Load data from files
-    positive_examples = list(open("./data/rt-polaritydata/rt-polarity.pos").readlines())
+    positive_examples = list(open("./example/cnn_text_classification/data/rt-polaritydata/rt-polarity.pos").readlines())
     positive_examples = [s.strip() for s in positive_examples]
-    negative_examples = list(open("./data/rt-polaritydata/rt-polarity.neg").readlines())
+    negative_examples = list(open("./example/cnn_text_classification/data/rt-polaritydata/rt-polarity.neg").readlines())
     negative_examples = [s.strip() for s in negative_examples]
     # Split by words
     x_text = positive_examples + negative_examples
@@ -60,7 +60,23 @@ def pad_sentences(sentences, padding_word="</s>"):
         padded_sentences.append(new_sentence)
     return padded_sentences
 
-
+def save_vocab(vocabulary, vocabulary_inv):
+    """
+    Save vocab for predict process
+    """
+    vocab_file = "./example/cnn_text_classification/data/vocab"
+    vocabinv_file = "./example/cnn_text_classification/data/vocab-inv"
+    #save mapping from index to word
+    fp_vinv = open(vocabinv_file,'w')
+    for i in range(0, len(vocabulary_inv)):
+        fp_vinv.write("%d\t%s\n" % (i, vocabulary_inv[i]))
+    fp_vinv.close()
+    #save mapping from word to index
+    fp_v = open(vocab_file, 'w')
+    for x in vocabulary:
+        fp_v.write("%s\t%i\n" % (x, vocabulary[x]))
+    fp_v.close()
+    
 def build_vocab(sentences):
     """
     Builds a vocabulary mapping from word to index based on the sentences.
@@ -120,6 +136,7 @@ def load_data():
     sentences, labels = load_data_and_labels()
     sentences_padded = pad_sentences(sentences)
     vocabulary, vocabulary_inv = build_vocab(sentences_padded)
+    save_vocab(vocabulary, vocabulary_inv)
     x, y = build_input_data(sentences_padded, labels, vocabulary)
     return [x, y, vocabulary, vocabulary_inv]
 
